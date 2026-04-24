@@ -1,14 +1,10 @@
 import { Link, Routes, Route} from "react-router-dom";
-import { useState, useEffect } from 'react';
 import Library from "./library.jsx";
-import Settings from "./settings.jsx";
 import home_elem from "./home_elem.jsx";
-import {PredictPage} from "./predict.jsx";
+import {PredictScreen} from "./predictscreen.jsx";
 import {General, Notifications, Profile, Security} from "./settings.jsx";
-import { LandingPage } from "./landingpage.jsx";
-import logo from './LogoMR.png';
-import { HomeIcon, BookOpenIcon, Cog6ToothIcon, UserIcon } from '@heroicons/react/24/outline';
-import {ListBulletIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid/index.js";
+import {MagnifyingGlassIcon } from "@heroicons/react/24/solid/index.js";
+import {MangaSelectionScreen} from "./mangaselection.jsx";
 
 
 
@@ -31,7 +27,7 @@ export function App() {
                             <Link to="/" className="hover:text-white transition-colors">Features</Link>
                             <Link to="/library" className="hover:text-white transition-colors">Library</Link>
                             <Link to="/settings" className="hover:text-white transition-colors">Settings</Link>
-                            <Link to="/predict" className="hover:text-white transition-colors">Predict</Link>
+                            <Link to="/predictscreen" className="hover:text-white transition-colors">Predict</Link>
                         </div>
 
                         {/* Right: Search + Action Button */}
@@ -59,7 +55,8 @@ export function App() {
                     <Route path="/general" element={<General/>}></Route>
                     <Route path="/notifications" element={<Notifications/>}></Route>
                     <Route path="/security" element={<Security/>}></Route>
-                    <Route path="/predict" element={<PredictPage/>}></Route>
+                    <Route path="/predictscreen" element={<PredictScreen/>}></Route>
+                    <Route path="/selection" element={<MangaSelectionScreen/>}></Route>
                 </Routes>
             </div>
         )

@@ -7,6 +7,6 @@ import { LandingPage } from './landingpage.jsx';
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
-      < App />
+      < LandingPage />
   </BrowserRouter>
 )

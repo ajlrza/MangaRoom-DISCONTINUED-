@@ -1,5 +1,4 @@
-import { useState} from 'react';
-import { useEffect } from 'react'
+import { useState } from 'react';
 // Using the specific imports you requested
 import { ArrowTrendingUpIcon, ChartBarSquareIcon, ListBulletIcon, StarIcon } from '@heroicons/react/24/solid';
 import { App } from "./App.jsx";
@@ -7,7 +6,7 @@ import { App } from "./App.jsx";
 
 export function LandingPage() {
 
-    const [isLogin, setIsLogin] = useState(true);
+    const [isLogin, setIsLogin] = useState(false);
     const [sessionActive, setSessionActive] = useState(false);
     const [cantLogin, setCantLogin] = useState(false);
     const [closeDialog, setCloseDialog] = useState(false);
@@ -177,7 +176,7 @@ export function LandingPage() {
         );
     }
 
-    if (sessionActive === false) {
+    if (sessionActive === true) {
         return (
             <App/>
         )
