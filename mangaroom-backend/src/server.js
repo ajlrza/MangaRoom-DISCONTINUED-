@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
-import { startDatabase} from './database.js';
+import {startDatabase} from './database.js';
+import session from 'express-session';
+import Kafka from 'node-rdkafka';
 
 
 const app = express();
@@ -8,11 +10,28 @@ const port = 3000;
 
 app.use(cors());
 app.use(express.json());
+app.use(session({
+    secret: '$2a$19$cU2SNCSGggpFsDj1Zbg4J.RYW3gnA3lf0k23EFGuGndC7rVkzSco',
+    resave: false,
+    saveUninitialized: true,
+    cookie:  {
+        httpOnly: true,
+        secure: false,
+        maxAge: 60000,
+        domain: 'localhost'
+        }
+    }
+))
+
+
+
+
+
 
 // API Endpoints
 // Uses the get method on the app object, which receives the request from the client
 // The main deciding factor for which API Endpoints would be called is the request URL which is the one with "/"
-// After the endpoints receives them, an imported startDatabase function is initialized to retrieve data
+// After the endpoints receive them, an imported startDatabase function is initialized to retrieve data
 
 app.get("/totalMangaTracked", (req, res) => {
     const totalMangaTrackedResponse = startDatabase('manga_count').then(data => {res.send(data)});
@@ -48,9 +67,11 @@ app.get("/userMangaStatus", (req, res) => {
 
 
 app.post("/startSession", async(req, res) => {
+
     const getEmail = req.body.Email;
     const getPass = req.body.Password;
     let sessionConfirmation;
+
 
 
     async function initChecking() {
@@ -72,9 +93,11 @@ app.post("/startSession", async(req, res) => {
         }
 
         if (sessionConfirmation === true) {
+
             res.status(200).json(
-                {"access": true, "message": "Log-in successful!" }
+                {"access": true, "message": req.sessionID }
             )
+
         }
         else {
             res.status(401).json(
@@ -87,7 +110,7 @@ app.post("/startSession", async(req, res) => {
 
 })
 
-app.post("/signUpAccount", async(req) => {
+app.post("/signUpAccount", async(req, res) => {
     const getUsername = req.body.Username;
     const getEmail = req.body.Email;
     const getPassword = req.body.Password;
@@ -95,8 +118,33 @@ app.post("/signUpAccount", async(req) => {
     const createAccount = await startDatabase('sign_up', getUsername, getEmail, getPassword);
 })
 
+app.post("/sendDataToKafka", async(req, res) => {
+    const data_store = []
+    const batched_data = []
+    if (req.body.length >= 1) {
+        while (req.body.timer !== "Stopped") {
+            let batch_count = 0
+            data_store.append(req.body)
+            if (data_store.length >= 100) {
+                batched_data.append(data_store)
+                data_store.clear()
+                batch_count += 1
+            }
+            console.log("Total batches of 100 messages sent:" + batch_count)
+        }
+        if (req.body.timer === "Stopped")  {
+            const producer = new Kafka.Producer.createWriteStream({
+            })
+        }
+    }
+
+
+
+})
+
 
 app.listen(port, () => {
+
     console.log(`Example app listening at http://localhost:${port}`)
 })
 
