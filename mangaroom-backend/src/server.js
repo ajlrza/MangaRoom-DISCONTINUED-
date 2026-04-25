@@ -22,12 +22,6 @@ app.use(session({
         }
     }
 ))
-
-
-
-
-
-
 // API Endpoints
 // Uses the get method on the app object, which receives the request from the client
 // The main deciding factor for which API Endpoints would be called is the request URL which is the one with "/"
@@ -71,8 +65,6 @@ app.post("/startSession", async(req, res) => {
     const getEmail = req.body.Email;
     const getPass = req.body.Password;
     let sessionConfirmation;
-
-
 
     async function initChecking() {
         const checkAccount = await startDatabase('user_information', getEmail, getPass)
@@ -118,28 +110,43 @@ app.post("/signUpAccount", async(req, res) => {
     const createAccount = await startDatabase('sign_up', getUsername, getEmail, getPassword);
 })
 
+let data_store = {}
+let batched_data = []
+let batch_count = 0;
+
 app.post("/sendDataToKafka", async(req, res) => {
-    const data_store = []
-    const batched_data = []
-    if (req.body.length >= 1) {
-        while (req.body.timer !== "Stopped") {
-            let batch_count = 0
-            data_store.append(req.body)
-            if (data_store.length >= 100) {
-                batched_data.append(data_store)
-                data_store.clear()
-                batch_count += 1
-            }
-            console.log("Total batches of 100 messages sent:" + batch_count)
-        }
-        if (req.body.timer === "Stopped")  {
-            const producer = new Kafka.Producer.createWriteStream({
-            })
-        }
+    let session;
+    let userId;
+
+    if (req.body.active === true) {
+        session = true;
+    }
+    else if (req.body.active === false) {
+        session = false;
     }
 
+    if (req.body.user != undefined){
+        userId = req.body.user;
+    }
 
-
+    if (session === true) {
+        if (Object.keys(req.body).length >= 2) {
+            if (Object.keys(data_store).length != 100) {
+                /* req.body.data itself has the userId and telemetry data, userSessionId is randomized each time */
+                data_store[req.body.userSessionId] = req.body.data
+            }
+            if (Object.keys(data_store).length == 100) {
+                batched_data.push(data_store)
+                data_store = {}
+                batch_count += 1
+            }
+        }
+        if (batch_count === 5) {
+            const producer = new Kafka.Producer.createWriteStream({
+            })
+            res.body(200, "Kafka messages sent: " + batch_count);
+        }
+    }
 })
 
 
